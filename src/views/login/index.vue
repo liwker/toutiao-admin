@@ -1,16 +1,24 @@
 <template>
   <div class="login-container">
     <div class="login-warp">
-      <el-form ref="form" :model="user">
+      <el-form
+        ref="login-form"
+        :model="user"
+        :rules="formRules"
+      >
         <h2>欢迎登录</h2>
-        <el-form-item>
+        <el-form-item prop="mobile">
           <el-input placeholder="请输入账号" v-model="user.mobile"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input type="password" placeholder="请输入密码" v-model="user.passWord"></el-input>
+        <el-form-item prop="passWord">
+          <el-input
+            type="password"
+            placeholder="请输入密码"
+            v-model="user.passWord"
+          ></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-checkbox v-model="checked">我已阅读并同意用户协议和隐私条款</el-checkbox>
+        <el-form-item prop="agree">
+          <el-checkbox v-model="user.agree">我已阅读并同意用户协议和隐私条款</el-checkbox>
         </el-form-item>
         <el-form-item>
           <el-button
@@ -25,60 +33,84 @@
 </template>
 
 <script>
-// import request from '@/utils/request.js'
+import { login } from '@/api/user.js'
 
 export default {
   name: 'LoginIndex',
   data () {
     return {
       user: {
-        mobile: '13911111111',
-        passWord: '246810'
+        mobile: '233',
+        passWord: '233',
+        agree: false
       },
-      checked: false,
+      formRules: {
+        mobile: [
+          { required: true, message: '请输入账户', trigger: 'blur' }
+        ],
+        passWord: [
+          { required: true, message: '请输入密码', trigger: 'blur' }
+        ],
+        agree: [
+          {
+            // 自定义验证规则
+            validator: (rule, value, callback) => {
+              if (value) {
+                callback()
+              } else {
+                callback(new Error('请同意用户协议'))
+              }
+            }
+          }
+        ]
+      },
       isLoading: false
     }
   },
   methods: {
-    /* onLogin () {
+    onLogin () {
+      this.$refs['login-form'].validate(valid => {
+        if (!valid) {
+          // 表单验证失败
+          return false
+        } else {
+          // 验证通过
+          this.login()
+        }
+      })
+    },
+    login () {
       // 启用loading
       this.isLoading = true
       // 获取表单数据
       const user = this.user
-      // 请求后端并做出响应
-      request({
-        method: 'POST',
-        url: '/mp/v1_0/authorizations',
-        data: user
-      }).then(res => {
+      // 请求api 并做出响应
+      login().then(res => {
         // 成功：
         console.log(res)
-        this.$message.success('登录成功')
+        let data = Buffer.from(res.data.content, 'base64') // 解码为buffer
+        data = JSON.parse(data.toString()) // 转换为json
+        const login = data.login
+        // console.log(login)
+        if (user.mobile === login.mobile && user.passWord === login.passWord) {
+          this.$message.success('登录成功')
+          // 本地缓存
+          window.localStorage.setItem('login', JSON.stringify(login))
+
+          // 跳转到首页
+          this.$router.push({
+            name: 'home'
+          })
+        } else {
+          this.$message.error('登录失败：账号或密码错误')
+        }
         this.isLoading = false
       }).catch(err => {
         // 失败：
         console.log(err)
-        this.$message.error('登录失败：手机号或密码错误')
+        this.$message.error('登录失败：网络异常')
         this.isLoading = false
       })
-    }
-  } */
-
-    // 模拟登录
-    onLogin () {
-      // 启用loading
-      this.isLoading = true
-      // 获取表单数据
-      const user = this.user
-      // 请求后端并做出响应
-      setTimeout(() => {
-        if (user.mobile === '13911111111' && user.passWord === '246810') {
-          this.$message.success('登录成功')
-        } else {
-          this.$message.error('登录失败：手机号或密码错误')
-        }
-        this.isLoading = false
-      }, 1500)
     }
   }
 }
@@ -107,6 +139,7 @@ export default {
         text-align: center;
         font-style: italic;
         color: rgba(91,209,215,1);
+        letter-spacing: 2px;
       }
       .el-form{
 
