@@ -41,9 +41,10 @@ const router = new VueRouter({
 // 全局路由守卫
 router.beforeEach((to, from, next) => {
   // 是否登录了
-  const login = JSON.parse(window.localStorage.getItem('login'))
+  const user = JSON.parse(window.localStorage.getItem('user'))
+  // 只要不是访问登录界面，就要验证
   if (to.path !== '/login') {
-    if (login) {
+    if (user) {
       // 已登录
       next()
     } else {

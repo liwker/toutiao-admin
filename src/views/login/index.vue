@@ -10,11 +10,11 @@
         <el-form-item prop="mobile">
           <el-input placeholder="请输入账号" v-model="user.mobile"></el-input>
         </el-form-item>
-        <el-form-item prop="passWord">
+        <el-form-item prop="code">
           <el-input
             type="password"
             placeholder="请输入密码"
-            v-model="user.passWord"
+            v-model="user.code"
           ></el-input>
         </el-form-item>
         <el-form-item prop="agree">
@@ -40,15 +40,15 @@ export default {
   data () {
     return {
       user: {
-        mobile: '233',
-        passWord: '233',
+        mobile: '13911111111',
+        code: '246810',
         agree: false
       },
       formRules: {
         mobile: [
           { required: true, message: '请输入账户', trigger: 'blur' }
         ],
-        passWord: [
+        code: [
           { required: true, message: '请输入密码', trigger: 'blur' }
         ],
         agree: [
@@ -79,36 +79,28 @@ export default {
         }
       })
     },
-    login () {
-      // 启用loading
-      this.isLoading = true
-      // 获取表单数据
-      const user = this.user
-      // 请求api 并做出响应
-      login().then(res => {
-        // 成功：
-        console.log(res)
-        let data = Buffer.from(res.data.content, 'base64') // 解码为buffer
-        data = JSON.parse(data.toString()) // 转换为json
-        const login = data.login
-        // console.log(login)
-        if (user.mobile === login.mobile && user.passWord === login.passWord) {
-          this.$message.success('登录成功')
-          // 本地缓存
-          window.localStorage.setItem('login', JSON.stringify(login))
 
-          // 跳转到首页
-          this.$router.push({
-            name: 'home'
-          })
-        } else {
-          this.$message.error('登录失败：账号或密码错误')
-        }
+    login () {
+    // 启用loading
+      this.isLoading = true
+
+      // 请求api 并做出响应
+      login(this.user).then(res => {
+        // 成功：
+        // console.log(res)
+        this.$message.success('登录成功')
+        // 本地缓存
+        window.localStorage.setItem('user', JSON.stringify(res.data.data))
+
+        // 跳转到首页
+        this.$router.push({
+          name: 'home'
+        })
         this.isLoading = false
       }).catch(err => {
         // 失败：
         console.log(err)
-        this.$message.error('登录失败：网络异常')
+        this.$message.error('登录失败')
         this.isLoading = false
       })
     }
