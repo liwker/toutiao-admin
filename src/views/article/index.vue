@@ -115,7 +115,7 @@
               type="danger"
               icon="el-icon-delete"
               circle
-              @click="onDeleteArticle"
+              @click="onDeleteArticle(scope.row.id)"
             ></el-button>
           </template>
         </el-table-column>
@@ -129,7 +129,8 @@
         :total="totalCount"
         :page-size="pageSize"
         :disabled="loading"
-        @current-change="onCurrentChange"
+        :current-page.sync="page"
+        @current-change="loadArticles"
       >
       </el-pagination>
     </el-card>
@@ -138,7 +139,11 @@
 </template>
 
 <script>
-import { getArticles, getArticleChannels } from '@/api/article'
+import {
+  getArticles,
+  getArticleChannels,
+  deleteArticle
+} from '@/api/article'
 
 export default {
   name: 'ArticleIndex',
@@ -172,14 +177,15 @@ export default {
       channels: [], // 频道
       channelId: null, // 查询文章的频道
       rangeDate: null, // 筛选日期
-      loading: true // 表格数据加载
+      loading: true, // 表格数据加载
+      page: 1 // 当前页
     }
   },
   computed: {},
   watch: {},
   created () {
     // 获取文章
-    this.loadArticles()
+    this.loadArticles(3)
     this.loadChannels()
   },
   mounted () {},
@@ -207,12 +213,6 @@ export default {
       })
     },
 
-    // 查询
-    onCurrentChange (page) {
-      // console.log(page)
-      this.loadArticles(page)
-    },
-
     // 获取频道
     loadChannels () {
       getArticleChannels().then(res => {
@@ -222,12 +222,24 @@ export default {
     },
 
     // 删除文章
-    onDeleteArticle () {
+    onDeleteArticle (articleId) {
+      this.$confirm('确认删除吗？', '删除提示', {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 请求删除
+        deleteArticle(articleId).then(res => {
+          // 删除成功
+          this.$message.success('删除成功')
+        })
+      }).catch(() => {
+        this.$message.info('已取消删除')
+      })
       // 数据接口
       // 封装请求
       // 删除请求调用
       // 处理响应结果
-      console.log('"onDeleteArticle"')
     }
   }
 }
