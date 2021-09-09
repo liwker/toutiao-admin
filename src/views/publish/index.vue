@@ -34,10 +34,20 @@
             <el-radio :label="0">无图</el-radio>
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
+          <!-- 封面 -->
+          <!-- <template v-if="article.cover.type > 0">
+            <upload-cover
+              v-for="(cover, index) of article.cover.type"
+              :key="cover"
+              :cover-image="article.cover.images[index]"
+              @update-cover="onUpdateCover(index, $event)"
+            /> -->
+          <!-- v-model 相当于 :value="xxx" 和 @input="xxx" -->
           <template v-if="article.cover.type > 0">
             <upload-cover
-              v-for="cover of article.cover.type"
+              v-for="(cover, index) of article.cover.type"
               :key="cover"
+              v-model="article.cover.images[index]"
             />
           </template>
         </el-form-item>
@@ -251,6 +261,11 @@ export default {
         this.article = res.data.data
       })
     }
+    // 子组件传封面
+    // onUpdateCover (index, url) {
+    //   // console.log(index, url)
+    //   this.article.cover.images[index] = url
+    // }
   }
 }
 </script>

@@ -4,6 +4,7 @@
       <img
         class="cover-image"
         ref="cover-image"
+        :src="value"
       >
     </div>
 
@@ -42,7 +43,8 @@ import { uploadImage } from '@/api/image'
 export default {
   name: 'UploadCover',
   components: {},
-  props: {},
+  // props: ['cover-image'],
+  props: ['value'],
   data () {
     return {
       dialogVisible: false,
@@ -91,6 +93,10 @@ export default {
           this.dialogVisible = false
           // 展示上传图片
           this.$refs['cover-image'].src = res.data.data.url
+
+          // 将图片地址发送给父组件
+          // this.$emit('update-cover', res.data.data.url)
+          this.$emit('input', res.data.data.url)
         })
       }
     }
