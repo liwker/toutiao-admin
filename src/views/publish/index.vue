@@ -5,7 +5,7 @@
         <!-- 面包屑 -->
         <el-breadcrumb separator-class="el-icon-arrow-right">
           <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item>发布文章</el-breadcrumb-item>
+          <el-breadcrumb-item>{{$route.query.id ? '修改文章' : '发布文章'}}</el-breadcrumb-item>
         </el-breadcrumb>
         <!-- /面包屑 -->
       </div>
@@ -45,7 +45,12 @@
 </template>
 
 <script>
-import { getArticleChannels, addArticle } from '@/api/article'
+import {
+  getArticleChannels,
+  addArticle,
+  getArticle,
+  updateArticle
+} from '@/api/article'
 
 export default {
   name: 'PublishIndex',
@@ -69,20 +74,42 @@ export default {
   watch: {},
   created () {
     this.loadChannels()
+    // 是否为修改文章
+    if (this.$route.query.id) {
+      this.loadArticle()
+    }
   },
   mounted () {},
   methods: {
     // 发布文章
     onPublish (draft = false) {
-      addArticle(this.article, draft).then(res => {
-        console.log(res)
-        this.$message.success('发布成功')
-      })
+      // 是否为修改还是发布文章
+      const articleId = this.$route.query.id
+      if (articleId) {
+        // 执行修改
+        updateArticle(articleId, this.article, draft).then(res => {
+          console.log(res)
+          this.$message.success(`${draft ? '存入草稿' : '发布'}成功`)
+        })
+      } else {
+        // 执行发布
+        addArticle(this.article, draft).then(res => {
+          console.log(res)
+          this.$message.success(`${draft ? '存入草稿' : '发布'}成功`)
+        })
+      }
     },
     // 获取频道
     loadChannels () {
       getArticleChannels().then(({ data: { data } }) => {
         this.channels = data.channels
+      })
+    },
+    // 修改文章：加载文章内容
+    loadArticle () {
+      getArticle(this.$route.query.id.toString()).then(res => {
+        // 展示
+        this.article = res.data.data
       })
     }
   }

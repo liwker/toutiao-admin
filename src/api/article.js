@@ -35,9 +35,30 @@ export const addArticle = (data, draft = false) => {
     method: 'POST',
     url: '/mp/v1_0/articles',
     params: {
+      // 是否存草稿
+      draft
+    },
+    data
+  })
+}
+
+// 编辑文章
+export const updateArticle = (articleID, data, draft = false) => {
+  return request({
+    method: 'PUT',
+    url: `/mp/v1_0/articles/${articleID}`,
+    params: {
       // 是否村草稿
       draft
     },
     data
+  })
+}
+
+// 获取指定文章
+export const getArticle = (articleID) => {
+  return request({
+    method: 'GET',
+    url: `/mp/v1_0/articles/${articleID}`
   })
 }
