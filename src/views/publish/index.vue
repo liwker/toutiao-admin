@@ -164,7 +164,7 @@ export default {
         title: '', // 文章标题
         content: '', // 文章内容
         cover: { // 文章封面
-          type: 0, // 类型 -1自动，0无图，1,3
+          type: 1, // 类型 -1自动，0无图，1,3
           images: [] // 图片地址
         },
         channel_id: null // 频道

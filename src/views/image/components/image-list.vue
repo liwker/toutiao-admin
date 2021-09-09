@@ -14,6 +14,7 @@
         >收藏</el-radio-button>
       </el-radio-group>
       <el-button
+        v-if="isShowAdd"
         size="mini"
         type="success"
         @click="dialogUploadVisible = true"
@@ -23,16 +24,21 @@
     <el-row :gutter="10">
       <el-col
         :xs="12" :sm="8" :md="6" :lg="4"
-        v-for="img of images"
+        v-for="(img, index) of images"
         :key="img.id"
         class="image-item"
+        @click.native="selected = index"
       >
         <el-image
-          style="height: 100px"
+          style="height: 100px; position: relative"
           :src="img.url"
           fit = "cover"
         ></el-image>
-        <div class="image-action">
+        <div
+          class="selected"
+          v-if="isShowSelected && selected === index"
+        ></div>
+        <div v-if="isShowAction" class="image-action">
           <el-button
           type="warning"
             circle
@@ -94,7 +100,23 @@ import { getImages, collectImage, deleteImage } from '@/api/image.js'
 export default {
   name: 'ImageList',
   components: {},
-  props: [],
+  props: {
+    // 是否显示添加
+    isShowAdd: {
+      type: Boolean,
+      default: true
+    },
+    // 是否显示操作
+    isShowAction: {
+      type: Boolean,
+      default: true
+    },
+    // 是否显示选择
+    isShowSelected: {
+      type: Boolean,
+      default: false
+    }
+  },
   data () {
     const user = JSON.parse(window.localStorage.getItem('user'))
     return {
@@ -106,7 +128,8 @@ export default {
       },
       totalCount: 0, // 总页数
       pageSize: 12, // 每页显示个数
-      page: 1 // 当前页码
+      page: 1, // 当前页码
+      selected: null
     }
   },
   computed: {},
@@ -207,5 +230,15 @@ export default {
 .pages {
   float: right;
   margin: 20px auto 15px;
+}
+
+.selected {
+  background: url(./selected.png) no-repeat;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  top: 0;
 }
 </style>
