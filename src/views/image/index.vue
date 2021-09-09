@@ -190,12 +190,13 @@ export default {
 }
 .image-item {
   position: relative;
+  overflow: hidden;
 
   .image-action {
     height: 30px;
     background-color: rgba(204,204,204,.5);
     position: absolute;
-    bottom: 4px;
+    bottom: -30px;
     left: 5px;
     right: 5px;
     font-size: 18px;
@@ -203,8 +204,15 @@ export default {
     justify-content: space-evenly;
     align-items: center;
     color: #fff;
+    transition: all .3s;
+  }
+  &:hover {
+    .image-action {
+      bottom: 4px;
+    }
   }
 }
+
 // 页码
 .pages {
   float: right;

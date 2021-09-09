@@ -68,7 +68,15 @@ export default {
     // 请求获取用户资料
     this.loadUserPrifile()
   },
-  mounted () {},
+  mounted () {
+    this.$bus.$on('updateUser', ({ name, photo }) => {
+      this.userInfo.name = name
+      this.userInfo.photo = photo
+    })
+  },
+  beforeDestroy () {
+    this.$bus.$off('updateUser')
+  },
   methods: {
     // 获取用户信息
     loadUserPrifile () {
