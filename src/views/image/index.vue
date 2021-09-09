@@ -44,7 +44,16 @@
       </el-row>
       <!-- /素材列表 -->
     </el-card>
-
+    <!-- 分页 -->
+    <el-pagination
+      background
+      layout="prev, pager, next"
+      :total="totalCount"
+      :page-size="pageSize"
+      @current-change="onPageChange"
+    ></el-pagination>
+    <!-- 分页 -->
+    <!-- 上传素材 -->
     <el-dialog
       title="上传素材"
       :visible.sync="dialogUploadVisible"
@@ -83,7 +92,9 @@ export default {
       dialogUploadVisible: false, // 上传图片，弹出层
       uploadHeaders: {
         Authorization: `Bearer ${user.token}`
-      }
+      },
+      totalCount: 0, // 总页数
+      pageSize: 12 // 每页显示个数
     }
   },
   computed: {},
@@ -93,24 +104,31 @@ export default {
   },
   mounted () {},
   methods: {
-    loadImages (collect = false) {
+    loadImages (page = 1) {
       getImages({
-        collect
+        collect: this.collect,
+        page,
+        per_page: this.pageSize
       }).then(res => {
         // console.log(res)
         this.images = res.data.data.results
+        this.totalCount = res.data.data.total_count
       })
     },
     // 切换素材
-    onCollectChange (value) {
-      this.loadImages(value)
+    onCollectChange () {
+      this.loadImages()
     },
     // 上传图片成功
     onUploadSuccess () {
       // 关闭对话框
       this.dialogUploadVisible = false
       // 更新列表
-      this.loadImages(false)
+      this.loadImages()
+    },
+    // 切页
+    onPageChange (page) {
+      this.loadImages(page)
     }
   }
 }
