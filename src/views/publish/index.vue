@@ -9,12 +9,23 @@
         </el-breadcrumb>
         <!-- /面包屑 -->
       </div>
-      <el-form ref="form" :model="article" label-width="40px">
-        <el-form-item label="标题">
-          <el-input v-model="article.title"></el-input>
+      <el-form
+        ref="publish-form"
+        :model="article"
+        :rules="formRules"
+        label-width="60px"
+      >
+        <el-form-item label="标题" prop="title">
+          <el-input v-model="article.title" placeholder="请输入文章标题"></el-input>
         </el-form-item>
-        <el-form-item label="内容">
-          <el-input type="textarea" v-model.lazy="article.content"></el-input>
+        <el-form-item label="内容" prop="content">
+          <!-- <el-input type="textarea" v-model.lazy="article.content"></el-input> -->
+          <el-tiptap
+            v-model="article.content"
+            :extensions="extensions"
+            height="400px"
+            placeholder="请输入文章内容"
+          ></el-tiptap>
         </el-form-item>
         <el-form-item label="封面">
           <el-radio-group v-model="article.cover.type">
@@ -24,7 +35,7 @@
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="频道">
+        <el-form-item label="频道" prop="channel_id">
           <el-select v-model="article.channel_id" placeholder="请选择频道">
             <el-option
               v-for="channel of channels"
@@ -51,13 +62,86 @@ import {
   getArticle,
   updateArticle
 } from '@/api/article'
+import { uploadImage } from '@/api/image'
+import {
+  ElementTiptap,
+  ElementTiptapPlugin,
+  Doc,
+  Text,
+  Paragraph,
+  Heading,
+  Bold,
+  Underline,
+  Italic,
+  Strike,
+  ListItem,
+  BulletList,
+  OrderedList,
+  TodoItem,
+  TodoList,
+  HorizontalRule,
+  Fullscreen,
+  Preview,
+  TableHeader,
+  TableCell,
+  TableRow,
+  Table,
+  Image,
+  CodeBlock,
+  TextColor
+} from 'element-tiptap'
+// import element-tiptap 样式
+import 'element-tiptap/lib/index.css'
+import Vue from 'vue'
+Vue.use(ElementTiptapPlugin, { lang: 'zh' })
 
 export default {
   name: 'PublishIndex',
-  components: {},
+  components: {
+    'el-tiptap': ElementTiptap
+  },
   props: {},
   data () {
     return {
+      // 编辑器的 extensions
+      // 它们将会按照你声明的顺序被添加到菜单栏和气泡菜单中
+      extensions: [
+        new Doc(),
+        new Text(),
+        new Paragraph(),
+        new Heading({ level: 4 }),
+        new Bold({ bubble: true }), // 在气泡菜单中渲染菜单按钮
+        new Image({
+          // 默认会把图片生成 base64
+          // 自定义图片上传
+          uploadRequest (file) {
+            const fd = new FormData()
+            fd.append('image', file)
+            return uploadImage(fd).then(res => {
+              // console.log(res)
+              return res.data.data.url
+            })
+            // return 'https://www.baidu.com/img/flexible/logo/pc/result.png'
+          }
+        }),
+        new TextColor(),
+        new Underline({ bubble: true, menubar: false }), // 在气泡菜单而不在菜单栏中渲染菜单按钮
+        new Italic(),
+        new Strike(),
+        new CodeBlock(),
+        new HorizontalRule(), // 分割线
+        new TableHeader(),
+        new TableCell(),
+        new TableRow(),
+        new Table(),
+        new ListItem(),
+        new BulletList(),
+        new OrderedList(),
+        new TodoItem(),
+        new TodoList(),
+        new Fullscreen(),
+        new Preview()
+      ],
       article: {
         title: '', // 文章标题
         content: '', // 文章内容
@@ -67,7 +151,46 @@ export default {
         },
         channel_id: null // 频道
       },
-      channels: null // 文章频道
+      channels: null, // 文章频道
+      formRules: {
+        title: [
+          {
+            required: true,
+            message: '请输入文章标题',
+            trigger: 'blur'
+          },
+          {
+            min: 5,
+            max: 30,
+            message: '长度在5~30个字符',
+            trigger: 'blur'
+          }
+        ],
+        content: [
+          {
+            validator (rule, value, callback) {
+              if (value === '<p></p>') {
+                // 验证失败
+                callback(new Error('请输入文章内容'))
+              } else {
+                // 验证成功
+                callback()
+              }
+            }
+          },
+          {
+            required: true,
+            message: '请输入文章内容',
+            trigger: 'blur'
+          }
+        ],
+        channel_id: [
+          {
+            required: true,
+            message: '请选择文章频道'
+          }
+        ]
+      }
     }
   },
   computed: {},
@@ -83,21 +206,29 @@ export default {
   methods: {
     // 发布文章
     onPublish (draft = false) {
-      // 是否为修改还是发布文章
-      const articleId = this.$route.query.id
-      if (articleId) {
-        // 执行修改
-        updateArticle(articleId, this.article, draft).then(res => {
-          console.log(res)
-          this.$message.success(`${draft ? '存入草稿' : '发布'}成功`)
-        })
-      } else {
-        // 执行发布
-        addArticle(this.article, draft).then(res => {
-          console.log(res)
-          this.$message.success(`${draft ? '存入草稿' : '发布'}成功`)
-        })
-      }
+      // 验证表单
+      this.$refs['publish-form'].validate(valid => {
+        // 验证失败
+        if (!valid) {
+          return
+        }
+        // 验证成功
+        // 是否为修改还是发布文章
+        const articleId = this.$route.query.id
+        if (articleId) {
+          // 执行修改
+          updateArticle(articleId, this.article, draft).then(res => {
+            console.log(res)
+            this.$message.success(`${draft ? '存入草稿' : '发布'}成功`)
+          })
+        } else {
+          // 执行发布
+          addArticle(this.article, draft).then(res => {
+            console.log(res)
+            this.$message.success(`${draft ? '存入草稿' : '发布'}成功`)
+          })
+        }
+      })
     },
     // 获取频道
     loadChannels () {
