@@ -34,12 +34,31 @@
           :xs="12" :sm="8" :md="6" :lg="4"
           v-for="img of images"
           :key="img.id"
+          class="image-item"
         >
           <el-image
             style="height: 100px"
             :src="img.url"
             fit = "cover"
           ></el-image>
+          <div class="image-action">
+            <el-button
+            type="warning"
+              circle
+              size="mini"
+              :icon="img.is_collected ? 'el-icon-star-on' : 'el-icon-star-off'"
+              :loading="img.loading"
+              @click="onCollect(img)"
+            ></el-button>
+            <!-- <i
+             :class="{
+               'el-icon-star-on': img.is_collected,
+               'el-icon-star-off': !img.is_collected
+             }"
+             @click="onCollect(img)"
+            ></i> -->
+            <i class="el-icon-delete-solid"></i>
+          </div>
         </el-col>
       </el-row>
       <!-- /素材列表 -->
@@ -50,6 +69,7 @@
       layout="prev, pager, next"
       :total="totalCount"
       :page-size="pageSize"
+      :current-page.sync="page"
       @current-change="onPageChange"
     ></el-pagination>
     <!-- 分页 -->
@@ -78,7 +98,7 @@
 </template>
 
 <script>
-import { getImages } from '@/api/image.js'
+import { getImages, collectImage } from '@/api/image.js'
 
 export default {
   name: 'ImageIndex',
@@ -94,7 +114,8 @@ export default {
         Authorization: `Bearer ${user.token}`
       },
       totalCount: 0, // 总页数
-      pageSize: 12 // 每页显示个数
+      pageSize: 12, // 每页显示个数
+      page: 1 // 当前页码
     }
   },
   computed: {},
@@ -105,13 +126,19 @@ export default {
   mounted () {},
   methods: {
     loadImages (page = 1) {
+      this.page = page
       getImages({
         collect: this.collect,
         page,
         per_page: this.pageSize
       }).then(res => {
         // console.log(res)
-        this.images = res.data.data.results
+        const results = res.data.data.results
+        // 给每个素材对象添加 loading 状态
+        for (const img of results) {
+          img.loading = false
+        }
+        this.images = results
         this.totalCount = res.data.data.total_count
       })
     },
@@ -125,10 +152,21 @@ export default {
       this.dialogUploadVisible = false
       // 更新列表
       this.loadImages()
+      this.$message.success('上传成功')
     },
     // 切页
     onPageChange (page) {
       this.loadImages(page)
+    },
+    // 收藏
+    onCollect (img) {
+      // 展示 loading
+      img.loading = true
+      collectImage(img.id, !img.is_collected).then(res => {
+        // console.log(res)
+        img.is_collected = !img.is_collected
+        img.loading = false
+      })
     }
   }
 }
@@ -139,5 +177,22 @@ export default {
   padding-bottom: 20px;
   display: flex;
   justify-content: space-between;
+}
+.image-item {
+  position: relative;
+
+  .image-action {
+    height: 30px;
+    background-color: rgba(204,204,204,.5);
+    position: absolute;
+    bottom: 4px;
+    left: 5px;
+    right: 5px;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    color: #fff;
+  }
 }
 </style>
