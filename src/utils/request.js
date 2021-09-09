@@ -17,7 +17,6 @@ const request = axios.create({
       return data
     }
   }]
-
 })
 
 const myRequest = axios.create({
