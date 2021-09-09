@@ -62,17 +62,18 @@
         </el-col>
       </el-row>
       <!-- /素材列表 -->
+      <!-- 分页 -->
+      <el-pagination
+        class="pages"
+        background
+        layout="prev, pager, next"
+        :total="totalCount"
+        :page-size="pageSize"
+        :current-page.sync="page"
+        @current-change="onPageChange"
+      ></el-pagination>
+      <!-- 分页 -->
     </el-card>
-    <!-- 分页 -->
-    <el-pagination
-      background
-      layout="prev, pager, next"
-      :total="totalCount"
-      :page-size="pageSize"
-      :current-page.sync="page"
-      @current-change="onPageChange"
-    ></el-pagination>
-    <!-- 分页 -->
     <!-- 上传素材 -->
     <el-dialog
       title="上传素材"
@@ -203,5 +204,10 @@ export default {
     align-items: center;
     color: #fff;
   }
+}
+// 页码
+.pages {
+  float: right;
+  margin: 20px auto 15px;
 }
 </style>
