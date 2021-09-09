@@ -183,7 +183,7 @@ export default {
   watch: {},
   created () {
     // 获取文章
-    this.loadArticles(3)
+    this.loadArticles(1)
     this.loadChannels()
   },
   mounted () {},

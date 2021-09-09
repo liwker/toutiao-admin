@@ -179,8 +179,9 @@ export default {
         display: flex;
         align-items: center;
         img {
-          width: 50px;
-          border-radius: 50%;
+          height: 40px;
+          border-radius: 3px;
+          margin-right: 10px;
         }
       }
     }

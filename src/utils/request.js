@@ -1,6 +1,8 @@
 // 基于 axios 封装的请求模块
 import axios from 'axios'
 import JSONbig from 'json-bigint'
+import router from '@/router'
+import { Message } from 'element-ui'
 
 // 创建 axios实例
 const request = axios.create({
@@ -44,5 +46,31 @@ request.interceptors.request.use(
 )
 
 // 响应拦截器
+request.interceptors.response.use(function (response) {
+  // 所有响应码为 2xx 的响应进入
+  return response
+}, function (error) {
+  const status = error.response.status
+  // 任何不是 2xx 的响应码都会进入
+  console.log('状态码异常')
+  if (error.response && status === 401) {
+    // 清除本地存储中的用户状态
+    window.localStorage.removeItem('user')
+    // 跳转到登录页面
+    router.push('/login')
+    // 提示
+    Message('登录状态无效，请重新登录')
+  } else if (status === 403) {
+    // 没有操作权限
+    Message('没有操作权限')
+  } else if (status === 400) {
+    // 客户端参数出错
+    Message('参数错误，请检查请求参数')
+  } else if (status >= 500) {
+    // 服务端
+    Message('服务端内部异常，请稍后重试')
+  }
+  return Promise.reject(error)
+})
 
 export { request, myRequest }
