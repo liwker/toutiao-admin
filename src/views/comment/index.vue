@@ -2,7 +2,12 @@
   <div class="comment-container">
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span>评论管理</span>
+        <!-- 面包屑 -->
+        <el-breadcrumb separator-class="el-icon-arrow-right">
+          <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+          <el-breadcrumb-item>评论管理</el-breadcrumb-item>
+        </el-breadcrumb>
+        <!-- /面包屑 -->
       </div>
       <el-table :data="articles" style="width: 100%">
         <el-table-column prop="title" label="标题" width="180">
