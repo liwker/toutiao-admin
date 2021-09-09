@@ -223,23 +223,21 @@ export default {
 
     // 删除文章
     onDeleteArticle (articleId) {
+      console.log(articleId)
+      console.log(articleId.toString())
       this.$confirm('确认删除吗？', '删除提示', {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         // 请求删除
-        deleteArticle(articleId).then(res => {
+        deleteArticle(articleId.toString()).then(res => {
           // 删除成功
           this.$message.success('删除成功')
         })
       }).catch(() => {
         this.$message.info('已取消删除')
       })
-      // 数据接口
-      // 封装请求
-      // 删除请求调用
-      // 处理响应结果
     }
   }
 }

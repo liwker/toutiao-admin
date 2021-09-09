@@ -9,31 +9,35 @@
         </el-breadcrumb>
         <!-- /面包屑 -->
       </div>
-      <el-form ref="form" :model="form" label-width="40px">
+      <el-form ref="form" :model="article" label-width="40px">
         <el-form-item label="标题">
-          <el-input v-model="form.name"></el-input>
+          <el-input v-model="article.title"></el-input>
         </el-form-item>
         <el-form-item label="内容">
-          <el-input type="textarea" v-model="form.desc"></el-input>
+          <el-input type="textarea" v-model.lazy="article.content"></el-input>
         </el-form-item>
         <el-form-item label="封面">
-          <el-radio-group v-model="form.resource">
-            <el-radio label="单图"></el-radio>
-            <el-radio label="三图"></el-radio>
-            <el-radio label="无图"></el-radio>
-            <el-radio label="自动"></el-radio>
+          <el-radio-group v-model="article.cover.type">
+            <el-radio :label="1">单图</el-radio>
+            <el-radio :label="3">三图</el-radio>
+            <el-radio :label="0">无图</el-radio>
+            <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="频道">
-          <el-select v-model="form.region" placeholder="请选择频道">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+          <el-select v-model="article.channel_id" placeholder="请选择频道">
+            <el-option
+              v-for="channel of channels"
+              :key="channel.id"
+              :label="channel.name"
+              :value="channel.id"
+            ></el-option>
           </el-select>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">发表</el-button>
-          <el-button>存入草稿</el-button>
+          <el-button type="primary" @click="onPublish(false)">发表</el-button>
+          <el-button @click="onPublish(true)">存入草稿</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -41,31 +45,45 @@
 </template>
 
 <script>
+import { getArticleChannels, addArticle } from '@/api/article'
+
 export default {
   name: 'PublishIndex',
   components: {},
   props: {},
   data () {
     return {
-      form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      }
+      article: {
+        title: '', // 文章标题
+        content: '', // 文章内容
+        cover: { // 文章封面
+          type: 0, // 类型 -1自动，0无图，1,3
+          images: [] // 图片地址
+        },
+        channel_id: null // 频道
+      },
+      channels: null // 文章频道
     }
   },
   computed: {},
   watch: {},
-  created () {},
+  created () {
+    this.loadChannels()
+  },
   mounted () {},
   methods: {
-    onSubmit () {
-      console.log('submit!')
+    // 发布文章
+    onPublish (draft = false) {
+      addArticle(this.article, draft).then(res => {
+        console.log(res)
+        this.$message.success('发布成功')
+      })
+    },
+    // 获取频道
+    loadChannels () {
+      getArticleChannels().then(({ data: { data } }) => {
+        this.channels = data.channels
+      })
     }
   }
 }
