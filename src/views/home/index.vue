@@ -115,7 +115,6 @@ export default {
       for (let i = 0; i < count; i++) {
           let name = this.channels[i].name
           let value = this.channels[i].totalCount
-          console.log(value)
           legendData.push(name);
           seriesData.push({
               name,
