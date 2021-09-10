@@ -18,7 +18,7 @@
             }"
             @click="zhedie"
           ></i>
-          个人练习测试~
+          个人练习项目~
         </div>
         <!-- 头像块 -->
         <el-dropdown>
@@ -28,7 +28,7 @@
             <i class="el-icon-arrow-down el-icon--right"></i>
           </div>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>设置</el-dropdown-item>
+            <el-dropdown-item @click.native="onSettings">设置</el-dropdown-item>
             <el-dropdown-item @click.native="onLogout">退出</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -138,6 +138,11 @@ export default {
           message: '已取消登出'
         })
       })
+    },
+    // 设置
+
+    onSettings () {
+      this.$router.push('/settings')
     }
   }
 }
@@ -170,6 +175,9 @@ export default {
       border-bottom: 1px solid #ccc;
 
       // 指向
+      .pointer {
+        margin-right: 10px;
+      }
       .pointer:hover {
         cursor: pointer;
       }
@@ -189,6 +197,7 @@ export default {
     // 内容区
     .main{
       background-color: #e9eef3;
+      position: relative;
     }
   }
 

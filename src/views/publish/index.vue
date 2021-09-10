@@ -246,6 +246,8 @@ export default {
             this.$message.success(`${draft ? '存入草稿' : '发布'}成功`)
           })
         }
+        // 跳转到文章
+        this.$router.push('/article')
       })
     },
     // 获取频道

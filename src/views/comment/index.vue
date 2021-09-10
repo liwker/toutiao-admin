@@ -48,7 +48,7 @@
         :page-size.sync="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="totalCount"
-        background=""
+        background
       ></el-pagination>
     </el-card>
   </div>

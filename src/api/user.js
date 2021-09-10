@@ -38,3 +38,15 @@ export const updateUserProfile = data => {
     data
   })
 }
+
+// 获取粉丝信息
+export const getFans = (page, perPage) => {
+  return request({
+    method: 'GET',
+    url: '/mp/v1_0/followers',
+    params: {
+      page,
+      per_page: perPage
+    }
+  })
+}
